@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModelStore | Premium Models & Figures</title>
+    <meta name="description" content="Cửa hàng mô hình tĩnh cao cấp - Gundam, Xe Cô, Anime Figures, Hot Toys">
+    <link rel="stylesheet" href="style.css?v=6">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="logo">MODEL<span>STORE</span></div>
+        <ul class="nav-links" id="dynamicNavLinks">
+            <!-- Loaded dynamically from menus.json -->
+        </ul>
+        <div class="nav-actions">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Tìm kiếm..." oninput="handleSearch(this.value)">
+            </div>
+            
+            <div class="user-menu-container" style="position:relative; display:flex; align-items:center; gap:0.5rem; cursor:pointer;" id="userMenuContainer">
+                <div id="userGreeting" style="display:none; font-size:0.85rem; color:var(--text); white-space:nowrap;">
+                    Xin chào, <span id="userNameDisplay" style="color:var(--gold); font-weight:700;"></span>
+                </div>
+                <a href="auth.html" class="cart-icon" id="userAuthIcon" title="Tài khoản">
+                    <i class="fas fa-user"></i>
+                </a>
+                <div id="userDropdown" class="user-dropdown" style="display:none; position:absolute; top:120%; right:0; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:0.5rem; min-width:160px; box-shadow:0 10px 30px rgba(0,0,0,0.8); z-index:100;">
+                    <a href="#" onclick="handleLogout()" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.8rem; color:var(--text); font-size:0.85rem; border-radius:4px; transition:background 0.2s;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="cart-badge" id="cartBadge">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <p class="hero-label">Bộ sưu tập mới nhất 2026</p>
+            <h1>Tinh Hoa<br><span>Nghệ Thuật Mô Hình</span></h1>
+            <p class="hero-desc">Khám phá hơn 40 mẫu mô hình tĩnh cao cấp. Từng đường nét, từng chi tiết đều toát lên vẻ đẹp sang trọng và đẳng cấp tuyệt đối.</p>
+            <div class="hero-btns">
+                <button class="btn-primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Khám Phá Ngay <i class="fas fa-arrow-down"></i></button>
+                <button class="btn-ghost">Xem Featured</button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat"><span id="statTotal">42</span><p>Sản phẩm</p></div>
+                <div class="stat"><span>4</span><p>Danh mục</p></div>
+                <div class="stat"><span>100%</span><p>Chính hãng</p></div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="glow-ring"></div>
+            <img src="images/hero.png" alt="Premium Mecha Figure">
+        </div>
+    </header>
+
+    <!-- Products Section -->
+    <!-- Categories Banner -->
+    <section class="products-section" style="padding-top: 2rem;">
+        <div class="categories-banner" id="homeCategoriesContainer">
+            <!-- Dynamic Categories Rendered Here via JS -->
+        </div>
+    </section>
+
+    <!-- Tất Cả Sản Phẩm Section -->
+    <section class="products-section" id="products">
+        <div class="section-header">
+            <div>
+                <h2>Bộ Sưu Tập <span class="highlight" id="sectionTitle">Tất Cả</span></h2>
+                <p class="section-sub" id="sectionCount">Đang tải...</p>
+            </div>
+            <div class="sort-bar">
+                <select id="sortSelect" onchange="handleSort(this.value)">
+                    <option value="default">Mặc định</option>
+                    <option value="price-asc">Giá: Thấp → Cao</option>
+                    <option value="price-desc">Giá: Cao → Thấp</option>
+                    <option value="name-asc">Tên A → Z</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="product-grid" id="productGrid"></div>
+
+        <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+            <button class="btn-ghost" onclick="loadMore()">Xem thêm <i class="fas fa-chevron-down"></i></button>
+        </div>
+    </section>
+
+    <!-- Hàng Mới Về Section -->
+    <section class="products-section" style="padding-top: 2rem; border-top: 1px solid var(--border);">
+        <div class="section-header">
+            <div>
+                <h2>Hàng <span class="highlight">Mới Về</span> <i class="fas fa-star" style="color:var(--gold);font-size:1.5rem"></i></h2>
+                <p class="section-sub">Những mẫu mô hình mới nhất vừa cập bến</p>
+            </div>
+        </div>
+        <div class="product-grid" id="newProductsGrid"></div>
+    </section>
+
+    <!-- Sale Section -->
+    <section class="products-section" style="background: #111; padding-top: 2rem;">
+        <div class="section-header">
+            <div>
+                <h2>Sale <span class="highlight" style="color:var(--red)">Bão Lớn</span> <i class="fas fa-fire" style="color:var(--red);font-size:1.5rem"></i></h2>
+                <p class="section-sub">Giảm giá cực mạnh - Số lượng có hạn!</p>
+            </div>
+        </div>
+        <div class="product-grid" id="saleProductsGrid"></div>
+    </section>
+
+    <!-- Best Selling Section -->
+    <section class="products-section" style="padding-top: 2rem; border-top: 1px solid var(--border);">
+        <div class="section-header">
+            <div>
+                <h2>Hàng <span class="highlight" style="color:var(--gold)">Bán Chạy</span> <i class="fas fa-crown" style="color:var(--gold);font-size:1.5rem"></i></h2>
+                <p class="section-sub">Top những mô hình được săn đón nhiều nhất tháng này!</p>
+            </div>
+        </div>
+        <div class="product-grid" id="bestSellingGrid"></div>
+    </section>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-bag"></i> Giỏ Hàng</h3>
+            <button onclick="toggleCart()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty"><i class="fas fa-box-open"></i><p>Giỏ hàng trống</p></div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display:none">
+            <div class="cart-total">
+                <span>Tổng cộng:</span>
+                <strong id="cartTotal">0₫</strong>
+            </div>
+            <a href="checkout.html" class="btn-primary" style="width:100%; text-decoration:none; justify-content:center;">Thanh Toán <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+    <div class="modal" id="productModal">
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <footer>
+        <div class="footer-top">
+            <div class="footer-col">
+                <div class="logo">MODEL<span>STORE</span></div>
+                <p>Nơi đam mê được tôn vinh. Chúng tôi cung cấp các mẫu mô hình đẳng cấp thế giới.</p>
+                <div class="socials">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Danh Mục</h4>
+                <ul>
+                    <li><a href="#">Gundam</a></li>
+                    <li><a href="#">Xe Cô (Diecast)</a></li>
+                    <li><a href="#">Anime Figures</a></li>
+                    <li><a href="#">Hot Toys / Figures</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hỗ Trợ</h4>
+                <ul>
+                    <li><a href="#">Chính sách đổi trả</a></li>
+                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                    <li><a href="#">Liên hệ</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 ModelStore. All Rights Reserved.
+        </div>
+    </footer>
+
+    <script src="script.js?v=8"></script>
+
+
+    <!-- ✨ Particle / Smoke Rising Effect -->
+    <script>
+    (function spawnParticles() {
+        document.querySelectorAll('.cat-banner-item').forEach(box => {
+            // Each box gets its own particle loop
+            setInterval(() => {
+                const p = document.createElement('span');
+                p.className = 'cat-particle';
+
+                // Random horizontal start position
+                const left = 10 + Math.random() * 80; // 10%–90%
+                const size = 3 + Math.random() * 5;   // 3–8px
+                const dur  = 2 + Math.random() * 2.5; // 2–4.5s
+                const delay = Math.random() * 0.5;
+
+                p.style.cssText = `
+                    left: ${left}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    animation-duration: ${dur}s;
+                    animation-delay: ${delay}s;
+                `;
+
+                box.appendChild(p);
+
+                // Remove after animation ends
+                setTimeout(() => p.remove(), (dur + delay + 0.5) * 1000);
+            }, 300);
+        });
+    })();
+    </script>
+
+    <!-- AI Chat Widget -->
+    <div id="aiChatBtn" onclick="toggleAIChat()">
+        <i class="fas fa-robot"></i>
+        <span>Chat AI</span>
+    </div>
+
+    <div id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div>
+                <i class="fas fa-robot"></i>
+                <span>Trợ Lý ModelStore</span>
+            </div>
+            <button onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="ai-chat-body" id="aiChatBody">
+            <div class="ai-msg bot">Xin chào! Tôi là trợ lý AI của ModelStore. Tôi có thể giúp gì cho bạn?</div>
+        </div>
+        <div class="ai-chat-footer">
+            <input type="text" id="aiChatInput" placeholder="Nhập tin nhắn..." onkeypress="if(event.key === 'Enter') sendAIMessage()">
+            <button onclick="sendAIMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <style>
+        #aiChatBtn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--gold);
+            color: #000;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(212,175,55,0.4);
+            z-index: 9999;
+            transition: all 0.3s;
+        }
+        #aiChatBtn:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(212,175,55,0.6); }
+        #aiChatBtn i { font-size: 1.5rem; }
+        #aiChatBtn span { font-size: 0.6rem; font-weight: 800; margin-top: 2px; }
+
+        #aiChatWindow {
+            position: fixed;
+            bottom: 5.5rem;
+            right: 2rem;
+            width: 350px;
+            height: 450px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            z-index: 9999;
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        #aiChatWindow.open { transform: scale(1); }
+
+        .ai-chat-header {
+            background: var(--bg3);
+            padding: 1rem;
+            border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .ai-chat-header button { background: none; border: none; color: var(--text); cursor: pointer; font-size: 1.2rem; }
+
+        .ai-chat-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ai-msg {
+            max-width: 80%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .ai-msg.bot {
+            background: var(--bg3);
+            color: var(--text);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+        .ai-msg.user {
+            background: var(--gold);
+            color: #000;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+            font-weight: 600;
+        }
+
+        .ai-chat-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.5rem;
+        }
+        .ai-chat-footer input {
+            flex: 1;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            outline: none;
+        }
+        .ai-chat-footer input:focus { border-color: var(--gold); }
+        .ai-chat-footer button {
+            background: var(--gold);
+            border: none;
+            color: #000;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading-dots { display: flex; gap: 4px; padding: 0.5rem; }
+        .loading-dots span {
+            width: 6px; height: 6px; background: var(--text); border-radius: 50%;
+            animation: dotBounce 1.4s infinite ease-in-out both;
+        }
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes dotBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        
+        .ai-product-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .ai-product-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--gold);
+        }
+        .ai-product-card img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .ai-product-card strong {
+            font-size: 0.85rem;
+            color: #fff;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+
+    <script>
+        function toggleAIChat() {
+            document.getElementById('aiChatWindow').classList.toggle('open');
+        }
+
+        async function sendAIMessage() {
+            const input = document.getElementById('aiChatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const body = document.getElementById('aiChatBody');
+            
+            // Add user message
+            body.innerHTML += `<div class="ai-msg user">${msg}</div>`;
+            input.value = '';
+            body.scrollTop = body.scrollHeight;
+
+            // Add loading indicator
+            const loadingId = 'loading-' + Date.now();
+            body.innerHTML += `<div class="ai-msg bot" id="${loadingId}"><div class="loading-dots"><span></span><span></span><span></span></div></div>`;
+            body.scrollTop = body.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Message: msg })
+                });
+                
+                document.getElementById(loadingId).remove();
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    body.innerHTML += `<div class="ai-msg bot">${data.reply}</div>`;
+                } else {
+                    try {
+                        const errData = await res.json();
+                        body.innerHTML += `<div class="ai-msg bot" style="color:var(--red); font-size:0.75rem;">${errData.reply || 'Có lỗi xảy ra.'}</div>`;
+                    } catch(err) {
+                        body.innerHTML += `<div class="ai-msg bot" style="color:var(--red)">Có lỗi xảy ra, vui lòng thử lại sau.</div>`;
+                    }
+                }
+            } catch (e) {
+                document.getElementById(loadingId).remove();
+                body.innerHTML += `<div class="ai-msg bot" style="color:var(--red)">Không thể kết nối đến máy chủ AI.</div>`;
+            }
+            body.scrollTop = body.scrollHeight;
+        }
+    </script>
+</body>
+</html>
