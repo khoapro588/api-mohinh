@@ -1,0 +1,56 @@
+[
+  {
+    "id": "trang-chu",
+    "label": "Trang chủ",
+    "href": "index.html",
+    "hasDropdown": false,
+    "items": []
+  },
+  {
+    "id": "gioi-thieu",
+    "label": "Giới thiệu",
+    "href": "about.html",
+    "hasDropdown": false,
+    "items": []
+  },
+  {
+    "id": "mo-hinh-pvc",
+    "label": "Mô hình PVC",
+    "href": "#",
+    "hasDropdown": true,
+    "items": ["One Piece", "Dragon Ball", "Naruto", "Demon Slayer", "My Hero Academia", "Marvel / DC", "Game Figures", "Series Khác"]
+  },
+  {
+    "id": "mo-hinh-resin",
+    "label": "Mô hình Resin",
+    "href": "#",
+    "hasDropdown": true,
+    "items": ["Jacksdo Studio", "LX Studio", "BT Studio", "Ditaishe Studio", "Brain Hole Studio", "Khác"]
+  },
+  {
+    "id": "dich-vu",
+    "label": "Dịch vụ",
+    "href": "#",
+    "hasDropdown": true,
+    "items": ["Sửa chữa, Custom, Repaint mô hình", "Làm đế Mica", "Thu mua, Trao đổi", "Order, Pre-order"]
+  },
+  {
+    "id": "tin-tuc",
+    "label": "Tin tức",
+    "href": "#",
+    "hasDropdown": true,
+    "items": ["Tin Mô hình sắp ra mắt", "Tin Mô hình IchibanKuji"]
+  },
+  {
+    "id": "lien-he",
+    "label": "Liên hệ",
+    "href": "#",
+    "hasDropdown": true,
+    "isContact": true,
+    "items": [
+      {"label": "Facebook", "href": "https://www.facebook.com/vankhoane/friends?locale=vi_VN", "icon": "fab fa-facebook"},
+      {"label": "Zalo: 0372715605", "href": "https://zalo.me/0372715605", "icon": "fas fa-comment"},
+      {"label": "SĐT: 0372715605", "href": "tel:0372715605", "icon": "fas fa-phone"}
+    ]
+  }
+]

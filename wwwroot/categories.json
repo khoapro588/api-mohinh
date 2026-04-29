@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cute-figure",
+    "filterValue": "all",
+    "image": "images/cat_cute.png",
+    "title": "CUTE FIGURE"
+  },
+  {
+    "id": "action-figure",
+    "filterValue": "anime",
+    "image": "images/cat_action.png",
+    "title": "ACTION FIGURE"
+  },
+  {
+    "id": "mecha",
+    "filterValue": "gundam",
+    "image": "images/cat_mecha.png",
+    "title": "MECHA"
+  },
+  {
+    "id": "anime",
+    "filterValue": "anime",
+    "image": "images/cat_anime.png",
+    "title": "ANIME"
+  }
+]
