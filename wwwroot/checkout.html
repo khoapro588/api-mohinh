@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh Toán | ModelStore</title>
+    <link rel="stylesheet" href="style.css?v=1.6">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: var(--bg); }
+        .checkout-container {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 5%;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        /* ── LEFT: FORM ── */
+        .co-box {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .co-box h2 {
+            font-family: var(--heading);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .co-box h2 i { color: var(--gold); font-size: 1.2rem; }
+
+        .co-form-group {
+            margin-bottom: 1.2rem;
+        }
+        .co-form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+        .co-form-group input, .co-form-group select, .co-form-group textarea {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-family: var(--font);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        .co-form-group input:focus, .co-form-group select:focus, .co-form-group textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+        .co-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* ── PAYMENT METHODS ── */
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .pm-option {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+        .pm-option:hover { border-color: rgba(212,175,55,0.5); background: var(--bg3); }
+        .pm-option.active { border-color: var(--gold); background: rgba(212,175,55,0.05); }
+        .pm-option input[type="radio"] { display: none; }
+        .pm-icon {
+            width: 40px; height: 40px;
+            background: var(--bg3);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+        .pm-option.active .pm-icon { background: var(--gold); color: #000; }
+        .pm-info h4 { font-size: 0.95rem; margin-bottom: 2px; }
+        .pm-info p { font-size: 0.8rem; color: var(--muted); }
+
+        /* ── RIGHT: SUMMARY ── */
+        .co-summary {
+            position: sticky;
+            top: 6rem;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        .co-summary h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        #coItemsList {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            padding-right: 0.5rem;
+        }
+        
+        .co-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .co-item-img {
+            width: 60px; height: 60px;
+            background: var(--bg3);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .co-item-img img { width: 100%; height: 100%; object-fit: cover; }
+        .co-item-qty {
+            position: absolute;
+            top: -6px; right: -6px;
+            background: var(--gold); color: #000;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            font-size: 0.7rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .co-item-info flex: 1;
+        .co-item-info h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
+        .co-item-info .price { color: var(--gold); font-size: 0.9rem; font-weight: 700; }
+
+        .co-totals {
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .co-total-row {
+            display: flex; justify-content: space-between;
+            font-size: 0.9rem; color: var(--muted);
+            margin-bottom: 0.8rem;
+        }
+        .co-total-row.final {
+            font-size: 1.2rem; color: var(--text);
+            font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);
+        }
+        .co-total-row.final span:last-child { color: var(--gold); font-size: 1.4rem; }
+
+        .btn-checkout {
+            width: 100%;
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 0.5rem;
+        }
+        .btn-checkout:hover { background: #e8c84a; transform: translateY(-2px); box-shadow: 0 10px 20px var(--gold-glow); }
+
+        @media (max-width: 900px) {
+            .checkout-container { grid-template-columns: 1fr; }
+            .co-summary { position: static; }
+        }
+        @media (max-width: 600px) {
+            .co-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header nhỏ gọn cho trang thanh toán -->
+    <header style="padding: 1.2rem 5%; border-bottom: 1px solid var(--border); background: var(--bg2); display: flex; justify-content: space-between; align-items: center;">
+        <a href="index.html" class="logo" style="text-decoration: none;">MODEL<span>STORE</span></a>
+        <a href="index.html" style="color: var(--muted); font-size: 0.9rem; text-decoration: none;"><i class="fas fa-arrow-left"></i> Quay lại cửa hàng</a>
+    </header>
+
+    <div class="checkout-container">
+        
+        <!-- LEFT: FORM -->
+        <div class="co-left">
+            <div class="co-box">
+                <h2><i class="fas fa-map-marker-alt"></i> Thông Tin Giao Hàng</h2>
+                <div class="co-row">
+                    <div class="co-form-group">
+                        <label>Họ và tên</label>
+                        <input type="text" id="coName" placeholder="Nhập họ tên đầy đủ" required>
+                    </div>
+                    <div class="co-form-group">
+                        <label>Số điện thoại</label>
+                        <input type="tel" id="coPhone" placeholder="Ví dụ: 0912345678" required>
+                    </div>
+                </div>
+                <div class="co-form-group">
+                    <label>Email (Để nhận hóa đơn)</label>
+                    <input type="email" id="coEmail" placeholder="email@example.com">
+                </div>
+                <div class="co-form-group">
+                    <label>Địa chỉ chi tiết</label>
+                    <input type="text" id="coAddress" placeholder="Số nhà, tên đường, phường/xã..." required>
+                </div>
+                <div class="co-row">
+                    <div class="co-form-group">
+                        <label>Tỉnh / Thành phố</label>
+                        <select id="coCity">
+                            <option value="">Chọn Tỉnh/Thành</option>
+                            <option value="HCM">Hồ Chí Minh</option>
+                            <option value="HN">Hà Nội</option>
+                            <option value="DN">Đà Nẵng</option>
+                            <option value="OTHER">Tỉnh thành khác</option>
+                        </select>
+                    </div>
+                    <div class="co-form-group">
+                        <label>Quận / Huyện</label>
+                        <select id="coDistrict">
+                            <option value="">Chọn Quận/Huyện</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="co-form-group">
+                    <label>Ghi chú đơn hàng (Tùy chọn)</label>
+                    <textarea id="coNote" rows="3" placeholder="Ví dụ: Giao hàng giờ hành chính..."></textarea>
+                </div>
+            </div>
+
+            <div class="co-box">
+                <h2><i class="fas fa-credit-card"></i> Phương Thức Thanh Toán</h2>
+                <div class="payment-methods">
+                    <label class="pm-option active" onclick="selectPayment(this, 'cod')">
+                        <input type="radio" name="payment" value="cod" checked>
+                        <div class="pm-icon"><i class="fas fa-money-bill-wave"></i></div>
+                        <div class="pm-info">
+                            <h4>Thanh toán khi nhận hàng (COD)</h4>
+                            <p>Kiểm tra hàng trước khi thanh toán</p>
+                        </div>
+                    </label>
+                    <label class="pm-option" onclick="selectPayment(this, 'vnpay')">
+                        <input type="radio" name="payment" value="vnpay">
+                        <div class="pm-icon"><i class="fas fa-qrcode"></i></div>
+                        <div class="pm-info">
+                            <h4>Thanh toán VNPay</h4>
+                            <p>Quét mã QR qua ứng dụng ngân hàng</p>
+                        </div>
+                    </label>
+                    <label class="pm-option" onclick="selectPayment(this, 'bank')">
+                        <input type="radio" name="payment" value="bank">
+                        <div class="pm-icon"><i class="fas fa-university"></i></div>
+                        <div class="pm-info">
+                            <h4>Chuyển khoản ngân hàng</h4>
+                            <p>Xác nhận ngay, hỗ trợ mọi ngân hàng nội địa</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: SUMMARY -->
+        <div class="co-right">
+            <div class="co-summary">
+                <h3>Tóm Tắt Đơn Hàng</h3>
+                <div id="coItemsList">
+                    <!-- Rendered by JS -->
+                </div>
+                
+                <div class="co-totals">
+                    <div class="co-total-row">
+                        <span>Tạm tính</span>
+                        <strong id="coSubTotal">0₫</strong>
+                    </div>
+                    <div class="co-total-row">
+                        <span>Phí vận chuyển</span>
+                        <strong id="coShipping">30.000₫</strong>
+                    </div>
+                    <div class="co-total-row final">
+                        <span>Tổng Thanh Toán</span>
+                        <span id="coFinalTotal">0₫</span>
+                    </div>
+                </div>
+
+                <button class="btn-checkout" onclick="placeOrder()">
+                    Đặt Hàng Ngay <i class="fas fa-check-circle"></i>
+                </button>
+                <p style="text-align:center; font-size:0.75rem; color:var(--muted); margin-top:1rem; line-height:1.5;">
+                    Bằng cách đặt hàng, bạn đồng ý với <a href="#" style="color:var(--gold)">Điều khoản sử dụng</a> và <a href="#" style="color:var(--gold)">Chính sách đổi trả</a> của chúng tôi.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=3"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCheckout();
+            
+            // Tự điền thông tin nếu đã đăng nhập
+            const userStr = localStorage.getItem('user');
+            if(userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    if(user.fullName) document.getElementById('coName').value = user.fullName;
+                    if(user.email) document.getElementById('coEmail').value = user.email;
+                } catch(e){}
+            }
+        });
+
+        function selectPayment(el, method) {
+            document.querySelectorAll('.pm-option').forEach(opt => opt.classList.remove('active'));
+            el.classList.add('active');
+            el.querySelector('input').checked = true;
+        }
+
+        function formatVND(n) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
+        }
+
+        function renderCheckout() {
+            const itemsList = document.getElementById('coItemsList');
+            let _cart = JSON.parse(localStorage.getItem('ms_cart') || '[]');
+            
+            if(_cart.length === 0) {
+                itemsList.innerHTML = '<p style="color:var(--red); text-align:center;">Giỏ hàng của bạn đang trống.</p>';
+                document.querySelector('.btn-checkout').disabled = true;
+                document.querySelector('.btn-checkout').style.opacity = '0.5';
+                return;
+            }
+
+            itemsList.innerHTML = _cart.map(item => `
+                <div class="co-item">
+                    <div class="co-item-img">
+                        <img src="${item.img}" onerror="this.src='images/product1.png'">
+                        <span class="co-item-qty">${item.qty}</span>
+                    </div>
+                    <div class="co-item-info">
+                        <h4>${item.name}</h4>
+                        <div class="price">${formatVND(item.price)}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            const subtotal = _cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const shipping = 30000;
+            const total = subtotal + shipping;
+
+            document.getElementById('coSubTotal').textContent = formatVND(subtotal);
+            document.getElementById('coFinalTotal').textContent = formatVND(total);
+        }
+
+        async function placeOrder() {
+            const name = document.getElementById('coName').value.trim();
+            const phone = document.getElementById('coPhone').value.trim();
+            const address = document.getElementById('coAddress').value.trim();
+            
+            if(!name || !phone || !address) {
+                alert('Vui lòng điền đầy đủ thông tin giao hàng (Họ tên, SĐT, Địa chỉ).');
+                return;
+            }
+
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            
+            let _cart = JSON.parse(localStorage.getItem('ms_cart') || '[]');
+            const subtotal = _cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const total = subtotal + 30000;
+
+            if (paymentMethod === 'vnpay') {
+                try {
+                    const response = await fetch('/api/payments/vnpay/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            Amount: total,
+                            Description: "Thanh toan ModelStore"
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        localStorage.setItem('ms_cart', '[]');
+                        window.location.href = data.url; // Redirect to VNPay
+                    } else {
+                        alert('Có lỗi xảy ra khi tạo mã thanh toán VNPay.');
+                    }
+                } catch (e) {
+                    console.error("Lỗi VNPay:", e);
+                    alert("Lỗi kết nối VNPay");
+                }
+                return;
+            }
+
+            // Xử lý COD hoặc Bank
+            alert('🎉 Đặt hàng thành công! Mã đơn hàng: #' + Math.floor(10000 + Math.random() * 90000) + '\nCảm ơn bạn đã tin tưởng ModelStore.');
+            
+            // Xóa giỏ hàng và về trang chủ
+            localStorage.setItem('ms_cart', '[]');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
