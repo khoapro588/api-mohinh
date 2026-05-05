@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm | ModelStore</title>
+    <link rel="stylesheet" href="style.css?v=1.6">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ── PRODUCT DETAIL PAGE STYLES ── */
+        .product-page {
+            max-width: 1300px;
+            margin: 100px auto 4rem;
+            padding: 0 2rem;
+        }
+
+        .pd-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        /* Gallery */
+        .pd-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: sticky;
+            top: 100px;
+        }
+
+        .pd-main-img {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 16px;
+            background: var(--bg2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .pd-main-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .pd-main-img:hover img {
+            transform: scale(1.05);
+        }
+
+        .pd-thumbs {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .pd-thumb {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: var(--bg2);
+        }
+
+        .pd-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pd-thumb.active, .pd-thumb:hover {
+            opacity: 1;
+            border-color: var(--gold);
+        }
+
+        /* Info */
+        .pd-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .pd-crumb {
+            font-size: 0.85rem;
+            color: var(--muted);
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .pd-title {
+            font-family: var(--heading);
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .pd-rating {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .pd-rating-stars i { color: var(--gold); }
+        .pd-rating-count { color: var(--muted); }
+        
+        .pd-price-block {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pd-price {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        /* Stock */
+        .pd-stock {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* Actions */
+        .pd-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .pd-qty {
+            display: flex;
+            align-items: center;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .pd-qty button {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .pd-qty button:hover { background: rgba(255,255,255,0.05); }
+        .pd-qty span {
+            width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .pd-btn-cart {
+            flex: 1;
+            background: rgba(212,175,55,0.1);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .pd-btn-cart:hover {
+            background: rgba(212,175,55,0.2);
+        }
+
+        .pd-btn-buy {
+            flex: 1;
+            background: var(--gold);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .pd-btn-buy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212,175,55,0.4);
+        }
+
+        /* Tabs */
+        .pd-tabs-container {
+            margin-top: 3rem;
+            background: var(--bg2);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .pd-tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pd-tab {
+            padding: 1.2rem 2rem;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .pd-tab.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .pd-tab-body {
+            padding: 2rem;
+            color: var(--muted);
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .pd-spec-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .pd-spec-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .pd-spec-table td:first-child {
+            width: 30%;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .pd-layout { grid-template-columns: 1fr; gap: 2rem; }
+            .pd-gallery { position: static; }
+            .pd-actions { flex-direction: column; }
+            .pd-qty { justify-content: center; }
+            .pd-btn-cart, .pd-btn-buy { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="logo">MODEL<span>STORE</span></div>
+        <ul class="nav-links" id="dynamicNavLinks"></ul>
+        <div class="nav-actions">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Tìm kiếm..." oninput="handleSearch(this.value)">
+            </div>
+            <div class="user-menu-container" style="position:relative; display:flex; align-items:center; gap:0.5rem; cursor:pointer;" id="userMenuContainer">
+                <div id="userGreeting" style="display:none; font-size:0.85rem; color:var(--text); white-space:nowrap;">
+                    Xin chào, <span id="userNameDisplay" style="color:var(--gold); font-weight:700;"></span>
+                </div>
+                <a href="auth.html" class="cart-icon" id="userAuthIcon" title="Tài khoản">
+                    <i class="fas fa-user"></i>
+                </a>
+                <div id="userDropdown" class="user-dropdown" style="display:none; position:absolute; top:120%; right:0; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:0.5rem; min-width:160px; box-shadow:0 10px 30px rgba(0,0,0,0.8); z-index:100;">
+                    <a href="#" onclick="handleLogout()" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.8rem; color:var(--text); font-size:0.85rem; border-radius:4px; transition:background 0.2s;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="cart-badge" id="cartBadge">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="product-page" id="pdContainer">
+        <!-- Injected via JS -->
+        <div style="text-align:center; padding:5rem; color:var(--muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Đang tải dữ liệu...</div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background:var(--bg2); border-top:1px solid var(--border); padding:2rem; text-align:center; color:var(--muted); font-size:0.85rem;">
+        © 2024 <strong style="color:var(--gold)">ModelStore</strong> — Cửa hàng mô hình tĩnh cao cấp. All rights reserved.
+    </footer>
+
+    <!-- Cart Elements -->
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-bag"></i> Giỏ Hàng</h3>
+            <button onclick="toggleCart()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer" id="cartFooter" style="display:none; padding:1.5rem; border-top:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:1rem; font-size:1rem;">
+                <span>Tổng cộng</span>
+                <span style="color:var(--gold); font-weight:700;" id="cartTotal">0₫</span>
+            </div>
+            <a href="checkout.html" class="btn-primary" style="width:100%; justify-content:center; text-decoration:none;">
+                <i class="fas fa-credit-card"></i> Thanh Toán
+            </a>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" style="position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--bg2);border:1px solid var(--gold);color:var(--text);padding:0.8rem 1.5rem;border-radius:8px;font-size:0.9rem;z-index:9999;transition:transform 0.3s ease;pointer-events:none;"></div>
+    <style>#toast.show { transform: translateX(-50%) translateY(0); }</style>
+
+    <script src="script.js"></script>
+    <script>
+        let pdQty = 1;
+        let currentModel = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            if (!id) {
+                document.getElementById('pdContainer').innerHTML = "<h2 style='text-align:center'>Không tìm thấy sản phẩm</h2>";
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/models/' + id);
+                if (!res.ok) throw new Error("Product not found");
+                currentModel = await res.json();
+                renderProductPage();
+            } catch (e) {
+                document.getElementById('pdContainer').innerHTML = "<h2 style='text-align:center'>Lỗi tải sản phẩm</h2>";
+            }
+        });
+
+        function renderProductPage() {
+            const img = currentModel.imageUrl || 'images/product1.png';
+            const catLabel = {pvc:'Mô Hình PVC', resin:'Mô Hình Resin', gundam:'Gundam', 'xe-co':'Xe Cô'}[currentModel.category] || currentModel.category;
+            
+            const stockColor = currentModel.stock <= 3 ? 'var(--red)' : currentModel.stock <= 8 ? '#f39c12' : '#2ecc71';
+            const stockText = currentModel.stock <= 3 ? `Sắp hết! Chỉ còn ${currentModel.stock} SP` : `Còn hàng (${currentModel.stock})`;
+            
+            const html = `
+            <div class="pd-layout">
+                <div class="pd-gallery">
+                    <div class="pd-main-img">
+                        <img id="pdMainImage" src="${img}" alt="${currentModel.name}" onerror="this.src='images/product1.png'">
+                        ${currentModel.isFeatured ? '<span style="position:absolute;top:1rem;left:1rem;background:var(--gold);color:#000;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;"><i class="fas fa-star"></i> Nổi bật</span>' : ''}
+                    </div>
+                    <div class="pd-thumbs">
+                        <div class="pd-thumb active"><img src="${img}" onerror="this.src='images/product1.png'"></div>
+                    </div>
+                </div>
+
+                <div class="pd-info">
+                    <div class="pd-crumb">
+                        <a href="index.html" style="color:var(--muted);text-decoration:none">Trang chủ</a> 
+                        <i class="fas fa-chevron-right" style="font-size:0.7rem"></i>
+                        <span>${catLabel}</span>
+                    </div>
+
+                    <h1 class="pd-title">${currentModel.name}</h1>
+                    
+                    <div class="pd-rating">
+                        <div class="pd-rating-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <span class="pd-rating-count">(124 đánh giá) | Thương hiệu: <strong style="color:var(--text)">${currentModel.brand}</strong></span>
+                    </div>
+
+                    <div class="pd-price-block">
+                        <span class="pd-price">${currentModel.price.toLocaleString('vi-VN')}₫</span>
+                    </div>
+
+                    <div class="pd-stock" style="color:${stockColor}">
+                        <i class="fas ${currentModel.stock <= 3 ? 'fa-fire' : 'fa-check-circle'}"></i> ${stockText}
+                    </div>
+
+                    <div class="pd-actions">
+                        <div class="pd-qty">
+                            <button onclick="changePdQty(-1)"><i class="fas fa-minus"></i></button>
+                            <span id="pdQtyVal">1</span>
+                            <button onclick="changePdQty(1)"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <button class="pd-btn-cart" onclick="addToCartQty(${currentModel.id}, pdQty)">
+                            <i class="fas fa-cart-plus"></i> Thêm Giỏ Hàng
+                        </button>
+                        <button class="pd-btn-buy" onclick="addToCartQty(${currentModel.id}, pdQty); window.location.href='checkout.html'">
+                            Mua Ngay
+                        </button>
+                    </div>
+
+                    <!-- Trust factors -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
+                        <div style="display:flex; align-items:center; gap:0.8rem; background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;">
+                            <i class="fas fa-shield-alt" style="color:var(--gold); font-size:1.5rem;"></i>
+                            <div><div style="font-weight:700;font-size:0.9rem">Chính Hãng</div><div style="font-size:0.8rem;color:var(--muted)">Đảm bảo 100% auth</div></div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:0.8rem; background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;">
+                            <i class="fas fa-box-open" style="color:var(--gold); font-size:1.5rem;"></i>
+                            <div><div style="font-weight:700;font-size:0.9rem">Đổi Trả 7 Ngày</div><div style="font-size:0.8rem;color:var(--muted)">Nếu lỗi sản xuất</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="pd-tabs-container">
+                <div class="pd-tabs-header">
+                    <button class="pd-tab active" onclick="switchPdTab('desc', this)">Mô tả sản phẩm</button>
+                    <button class="pd-tab" onclick="switchPdTab('spec', this)">Thông số kỹ thuật</button>
+                    <button class="pd-tab" onclick="switchPdTab('ship', this)">Chính sách vận chuyển</button>
+                </div>
+                <div class="pd-tab-body" id="tab-desc">
+                    <p>Sản phẩm <strong>${currentModel.name}</strong> là một tuyệt tác được sản xuất bởi <strong>${currentModel.brand}</strong>. Với độ tinh xảo cao và chi tiết sắc nét, mô hình này chắc chắn sẽ làm hài lòng bất kỳ nhà sưu tập nào.</p>
+                    <br>
+                    <p>Chúng tôi tự hào là đại lý phân phối chính thức của ${currentModel.brand} tại Việt Nam. Mọi sản phẩm đều nguyên seal, box đẹp và được kiểm tra kỹ lưỡng trước khi đóng gói gửi đi.</p>
+                </div>
+                <div class="pd-tab-body" id="tab-spec" style="display:none">
+                    <table class="pd-spec-table">
+                        <tr><td>Mã sản phẩm</td><td>#MD${currentModel.id}</td></tr>
+                        <tr><td>Thương hiệu</td><td>${currentModel.brand}</td></tr>
+                        <tr><td>Phân loại</td><td>${catLabel}</td></tr>
+                        <tr><td>Tình trạng</td><td>Mới 100% - Fullbox</td></tr>
+                    </table>
+                </div>
+                <div class="pd-tab-body" id="tab-ship" style="display:none">
+                    <p><i class="fas fa-check" style="color:var(--gold)"></i> <strong>Hỏa tốc nội thành TP.HCM:</strong> Nhận hàng trong vòng 2-4 tiếng đồng hồ.</p>
+                    <p><i class="fas fa-check" style="color:var(--gold)"></i> <strong>Giao chuẩn toàn quốc:</strong> 2-4 ngày làm việc.</p>
+                    <p><i class="fas fa-check" style="color:var(--gold)"></i> <strong>Đóng gói:</strong> Bubble wrap 3 lớp + Thùng carton cứng chống va đập 100%.</p>
+                </div>
+            </div>
+            `;
+            document.getElementById('pdContainer').innerHTML = html;
+        }
+
+        function changePdQty(delta) {
+            pdQty += delta;
+            if(pdQty < 1) pdQty = 1;
+            if(currentModel && pdQty > currentModel.stock) {
+                showToast(`Chỉ còn ${currentModel.stock} sản phẩm trong kho`);
+                pdQty = currentModel.stock;
+            }
+            document.getElementById('pdQtyVal').textContent = pdQty;
+        }
+
+        function switchPdTab(id, btn) {
+            document.querySelectorAll('.pd-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.pd-tab-body').forEach(b => b.style.display = 'none');
+            document.getElementById('tab-' + id).style.display = 'block';
+        }
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (navbar) {
+                navbar.style.background = window.scrollY > 50 ? 'rgba(8,8,8,0.98)' : 'rgba(8,8,8,0.85)';
+            }
+        });
+    </script>
+</body>
+</html>
