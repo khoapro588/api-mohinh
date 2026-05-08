@@ -551,6 +551,64 @@ function exportToWord() {
     document.body.removeChild(link);
 }
 
+function exportUsersToWord() {
+    if (adminUsers.length === 0) {
+        showToast('Không có dữ liệu người dùng để xuất!');
+        return;
+    }
+
+    let header = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>Danh sách người dùng</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid black; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            h1 { color: #d4af37; text-align: center; }
+        </style>
+        </head><body>
+        <h1>DANH SÁCH NGƯỜI DÙNG MODELSTORE</h1>
+        <p>Ngày xuất báo cáo: ${new Date().toLocaleString('vi-VN')}</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Họ Tên</th>
+                    <th>Email</th>
+                    <th>Quyền Hạn</th>
+                    <th>Ngày Tham Gia</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    let rows = adminUsers.map(u => `
+        <tr>
+            <td>#${u.id}</td>
+            <td>${u.fullName}</td>
+            <td>${u.email}</td>
+            <td>${u.role || 'customer'}</td>
+            <td>${new Date(u.createdAt).toLocaleDateString('vi-VN')}</td>
+        </tr>
+    `).join('');
+
+    let footer = `</tbody></table><br><p style='text-align:right'>Người lập báo cáo: Hệ thống ModelStore Admin</p></body></html>`;
+    
+    let source = header + rows + footer;
+    let blob = new Blob(['\ufeff', source], {
+        type: 'application/msword'
+    });
+
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement('a');
+    link.href = url;
+    link.download = 'Danh-Sach-Nguoi-Dung.doc';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 function adminLogout() {
     localStorage.removeItem('user');
     window.location.href = 'auth.html';

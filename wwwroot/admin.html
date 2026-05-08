@@ -153,7 +153,12 @@
         <div id="tab-users" class="tab-content">
             <div class="table-header">
                 <h3>Quản Lý Người Dùng</h3>
-                <button class="btn-primary" onclick="openUserModal()"><i class="fas fa-plus"></i> Thêm Người Dùng</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-ghost" onclick="exportUsersToWord()" style="border:1px solid #2ecc71; color:#2ecc71;">
+                        <i class="fas fa-file-word"></i> Xuất DS Người Dùng
+                    </button>
+                    <button class="btn-primary" onclick="openUserModal()"><i class="fas fa-plus"></i> Thêm Người Dùng</button>
+                </div>
             </div>
             <div class="table-container">
                 <table class="data-table">
