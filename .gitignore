@@ -1,0 +1,12 @@
+bin/
+obj/
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+.vscode/
+node_modules/
+wwwroot/images/
+*.exe
+*.dll
+*.pdb
