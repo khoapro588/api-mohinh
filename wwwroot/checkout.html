@@ -372,6 +372,7 @@
             const name = document.getElementById('coName').value.trim();
             const phone = document.getElementById('coPhone').value.trim();
             const address = document.getElementById('coAddress').value.trim();
+            const note = document.getElementById('coNote').value.trim();
             
             if(!name || !phone || !address) {
                 alert('Vui lòng điền đầy đủ thông tin giao hàng (Họ tên, SĐT, Địa chỉ).');
@@ -379,44 +380,73 @@
             }
 
             const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-            
             let _cart = JSON.parse(localStorage.getItem('ms_cart') || '[]');
+            if(_cart.length === 0) return;
+
             const subtotal = _cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const total = subtotal + 30000;
 
-            if (paymentMethod === 'vnpay') {
-                try {
+            // Lấy thông tin user đăng nhập
+            const userStr = localStorage.getItem('user');
+            let customerId = 0;
+            if(userStr) {
+                const user = JSON.parse(userStr);
+                customerId = user.id || user.Id || 0;
+            }
+
+            // Chuẩn bị dữ liệu đơn hàng
+            const orderData = {
+                customerId: customerId,
+                totalAmount: total,
+                status: "Pending",
+                items: _cart.map(it => ({
+                    modelId: it.id,
+                    quantity: it.qty,
+                    unitPrice: it.price
+                }))
+            };
+
+            try {
+                // 1. Lưu đơn hàng vào Database trước
+                const res = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (!res.ok) throw new Error("Lỗi khi tạo đơn hàng");
+                const savedOrder = await res.json();
+
+                // 2. Xử lý thanh toán VNPay nếu chọn
+                if (paymentMethod === 'vnpay') {
                     const response = await fetch('/api/payments/vnpay/create', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             Amount: total,
-                            Description: "Thanh toan ModelStore"
+                            Description: "Thanh toan ModelStore DH#" + savedOrder.id
                         })
                     });
                     
                     if (response.ok) {
                         const data = await response.json();
                         localStorage.setItem('ms_cart', '[]');
-                        window.location.href = data.url; // Redirect to VNPay
+                        window.location.href = data.url; 
                     } else {
-                        alert('Có lỗi xảy ra khi tạo mã thanh toán VNPay.');
+                        alert('Đã tạo đơn hàng nhưng lỗi kết nối VNPay.');
                     }
-                } catch (e) {
-                    console.error("Lỗi VNPay:", e);
-                    alert("Lỗi kết nối VNPay");
+                    return;
                 }
-                return;
-            }
 
-            // Xử lý COD hoặc Bank
-            alert('🎉 Đặt hàng thành công! Mã đơn hàng: #' + Math.floor(10000 + Math.random() * 90000) + '\nCảm ơn bạn đã tin tưởng ModelStore.');
-            
-            // Xóa giỏ hàng và về trang chủ
-            localStorage.setItem('ms_cart', '[]');
-            window.location.href = 'index.html';
+                // 3. Hoàn tất (COD / Bank)
+                alert(`🎉 Đặt hàng thành công! Mã đơn hàng: #${savedOrder.id}\nCảm ơn bạn đã tin tưởng ModelStore.`);
+                localStorage.setItem('ms_cart', '[]');
+                window.location.href = 'index.html';
+
+            } catch (e) {
+                console.error("Lỗi đặt hàng:", e);
+                alert("Có lỗi xảy ra trong quá trình đặt hàng. Vui lòng thử lại!");
+            }
         }
     </script>
 </body>
