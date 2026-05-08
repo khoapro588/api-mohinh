@@ -126,6 +126,9 @@
             <div class="page-header">
                 <h1>Lịch Sử Đơn Hàng</h1>
                 <p>Theo dõi và quản lý các đơn hàng bạn đã đặt</p>
+                <button class="btn-ghost" id="exportOrdersBtn" onclick="exportUserOrdersToWord()" style="margin-top:1rem; border:1px solid #2ecc71; color:#2ecc71; display:none;">
+                    <i class="fas fa-file-word"></i> Xuất Lịch Sử Đơn Hàng (Word)
+                </button>
             </div>
 
             <div id="ordersContainer">
@@ -143,8 +146,10 @@
         </div>
     </footer>
 
-    <script src="script.js?v=8"></script>
+    <script src="script.js?v=9"></script>
     <script>
+        let currentUserOrders = [];
+
         document.addEventListener('DOMContentLoaded', async () => {
             const userStr = localStorage.getItem('user');
             if (!userStr) {
@@ -159,8 +164,11 @@
             try {
                 const res = await fetch(`/api/orders/customer/${customerId}`);
                 if (!res.ok) throw new Error("Could not fetch orders");
-                const orders = await res.json();
-                renderOrders(orders);
+                currentUserOrders = await res.json();
+                renderOrders(currentUserOrders);
+                if (currentUserOrders.length > 0) {
+                    document.getElementById('exportOrdersBtn').style.display = 'inline-block';
+                }
             } catch (e) {
                 document.getElementById('ordersContainer').innerHTML = `
                     <div class="no-orders">
@@ -182,7 +190,7 @@
                 return;
             }
 
-            container.innerHTML = orders.reverse().map(order => {
+            container.innerHTML = [...orders].reverse().map(order => {
                 const date = new Date(order.orderDate).toLocaleDateString('vi-VN', {
                     year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
                 });
@@ -212,6 +220,64 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        function exportUserOrdersToWord() {
+            if (currentUserOrders.length === 0) return;
+
+            const user = JSON.parse(localStorage.getItem('user'));
+            let header = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Lịch sử mua hàng</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+                    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+                    th, td { border: 1px solid black; padding: 10px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    h1 { color: #d4af37; text-align: center; }
+                    .info { margin-bottom: 20px; }
+                </style>
+                </head><body>
+                <h1>LỊCH SỬ MUA HÀNG - MODELSTORE</h1>
+                <div class="info">
+                    <p><strong>Khách hàng:</strong> ${user.fullName}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Ngày xuất báo cáo:</strong> ${new Date().toLocaleString('vi-VN')}</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã Đơn</th>
+                            <th>Ngày Đặt</th>
+                            <th>Sản Phẩm</th>
+                            <th>Tổng Tiền</th>
+                            <th>Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let rows = currentUserOrders.map(o => `
+                <tr>
+                    <td>#${o.id}</td>
+                    <td>${new Date(o.orderDate).toLocaleDateString('vi-VN')}</td>
+                    <td>${o.items.map(it => `Model #${it.modelId} (x${it.quantity})`).join('<br>')}</td>
+                    <td>${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.totalAmount)}</td>
+                    <td>${o.status}</td>
+                </tr>
+            `).join('');
+
+            let footer = `</tbody></table><br><p style='text-align:center'>Cảm ơn quý khách đã tin tưởng ModelStore!</p></body></html>`;
+            
+            let source = header + rows + footer;
+            let blob = new Blob(['\ufeff', source], { type: 'application/msword' });
+            let url = URL.createObjectURL(blob);
+            let link = document.createElement('a');
+            link.href = url;
+            link.download = `Lich-Su-Mua-Hang-${user.fullName.replace(/\s+/g, '-')}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
