@@ -369,11 +369,13 @@ function renderAdminOrdersTable() {
     }
 
     tbody.innerHTML = adminOrders.map(o => {
-        let statusClass = o.status.toLowerCase();
-        let date = new Date(o.orderDate).toLocaleString('vi-VN');
+        const status = o.status || 'Pending';
+        const statusClass = status.toLowerCase();
+        const date = o.orderDate ? new Date(o.orderDate).toLocaleString('vi-VN') : 'N/A';
         
         // Tạo chuỗi tóm tắt sản phẩm
-        let itemsSummary = o.items.map(it => `Model #${it.modelId} (x${it.quantity})`).join(', ');
+        const items = o.items || [];
+        const itemsSummary = items.map(it => `Model #${it.modelId} (x${it.quantity})`).join(', ') || 'Không có SP';
 
         return `
             <tr>
