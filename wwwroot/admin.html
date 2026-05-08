@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -80,10 +81,24 @@
                 </div>
             </div>
 
-            <div class="stat-card" style="margin-top:20px; padding:2rem; text-align:center; border: 1px dashed var(--border);">
-                <i class="fas fa-chart-line" style="font-size:3rem; color:var(--gold); margin-bottom:1rem; display:block;"></i>
-                <h4>Biểu Đồ Tăng Trưởng</h4>
-                <p style="color:#888;">Dữ liệu đang được đồng bộ hóa với hệ thống quản lý kho...</p>
+            <div class="stat-card" style="margin-top:20px; padding:1.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h4 style="margin:0;"><i class="fas fa-chart-line" style="color:var(--gold);"></i> Doanh Thu Theo Ngày</h4>
+                    <select id="chartRangeSelect" onchange="renderRevenueChart()" style="background:var(--bg3);border:1px solid var(--border);color:#fff;padding:4px 10px;border-radius:6px;font-size:0.85rem;">
+                        <option value="7">7 ngày gần nhất</option>
+                        <option value="14">14 ngày</option>
+                        <option value="30">30 ngày</option>
+                    </select>
+                </div>
+                <canvas id="revenueChart" height="100"></canvas>
+            </div>
+
+            <div class="stat-card" style="margin-top:20px; padding:1.5rem;">
+                <h4 style="margin-bottom:1rem;"><i class="fas fa-pie-chart" style="color:#3498db;"></i> Trạng Thái Đơn Hàng</h4>
+                <div style="display:flex; align-items:center; gap:2rem;">
+                    <div style="width:200px; height:200px;"><canvas id="statusChart"></canvas></div>
+                    <div id="statusLegend" style="flex:1;"></div>
+                </div>
             </div>
         </div>
 

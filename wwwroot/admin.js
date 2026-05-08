@@ -75,8 +75,116 @@ async function fetchDashboardStats() {
         document.getElementById('dashOrders').textContent = stats.totalOrders;
         document.getElementById('dashPending').textContent = stats.pendingOrders;
         document.getElementById('dashCustomers').textContent = stats.totalCustomers;
+
+        // Render charts after stats loaded
+        renderRevenueChart();
+        renderStatusChart();
     } catch (e) {
         console.error("Error fetching stats", e);
+    }
+}
+
+let revenueChartInstance = null;
+let statusChartInstance = null;
+
+function renderRevenueChart() {
+    const days = parseInt(document.getElementById('chartRangeSelect')?.value || 7);
+    const canvas = document.getElementById('revenueChart');
+    if (!canvas) return;
+
+    // Group adminOrders by date
+    const now = new Date();
+    const labels = [];
+    const dataMap = {};
+
+    for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const label = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+        labels.push(label);
+        dataMap[label] = 0;
+    }
+
+    adminOrders.forEach(o => {
+        if (!o.orderDate || o.status === 'Cancelled') return;
+        const d = new Date(o.orderDate);
+        const label = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+        if (dataMap[label] !== undefined) {
+            dataMap[label] += parseFloat(o.totalAmount) || 0;
+        }
+    });
+
+    const values = labels.map(l => dataMap[l]);
+
+    if (revenueChartInstance) revenueChartInstance.destroy();
+    revenueChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Doanh Thu (₫)',
+                data: values,
+                backgroundColor: 'rgba(212, 175, 55, 0.4)',
+                borderColor: '#d4af37',
+                borderWidth: 2,
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#ccc' } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ' ' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(ctx.raw)
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#888', callback: v => (v/1000) + 'k' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+}
+
+function renderStatusChart() {
+    const canvas = document.getElementById('statusChart');
+    const legendEl = document.getElementById('statusLegend');
+    if (!canvas || adminOrders.length === 0) return;
+
+    const counts = { Pending: 0, Shipped: 0, Delivered: 0, Cancelled: 0 };
+    adminOrders.forEach(o => {
+        if (counts[o.status] !== undefined) counts[o.status]++;
+        else counts['Pending']++;
+    });
+
+    const colors = { Pending: '#f39c12', Shipped: '#3498db', Delivered: '#2ecc71', Cancelled: '#e74c3c' };
+    const labels = Object.keys(counts);
+    const values = Object.values(counts);
+
+    if (statusChartInstance) statusChartInstance.destroy();
+    statusChartInstance = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{ data: values, backgroundColor: labels.map(l => colors[l]), borderWidth: 0, hoverOffset: 8 }]
+        },
+        options: {
+            cutout: '70%',
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    if (legendEl) {
+        const names = { Pending: 'Chờ Duyệt', Shipped: 'Đang Giao', Delivered: 'Đã Giao', Cancelled: 'Đã Hủy' };
+        legendEl.innerHTML = labels.map((l, i) => `
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                <span style="width:14px;height:14px;border-radius:3px;background:${colors[l]};display:inline-block;flex-shrink:0;"></span>
+                <span style="flex:1;">${names[l]}</span>
+                <strong style="color:${colors[l]}">${values[i]}</strong>
+            </div>
+        `).join('');
     }
 }
 
