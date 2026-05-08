@@ -99,6 +99,14 @@
 
 <div class="container">
     <div class="header">
+        <div style="text-align: right; margin-bottom: 20px;" class="no-print">
+            <button onclick="exportToWord()" style="background:#2b5797; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:600; margin-right:10px;">
+                 Tải về Word (.doc)
+            </button>
+            <button onclick="window.print()" style="background:#e67e22; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:600;">
+                 In Báo Cáo / Lưu PDF
+            </button>
+        </div>
         <h1>BÁO CÁO CHI TIẾT XÂY DỰNG HỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ MODELSTORE</h1>
         <div class="student-info">
             <p>Sinh viên thực hiện: <span class="highlight">Hồ Văn Khoa</span></p>
@@ -212,6 +220,33 @@
         <p>© 2026 Hồ Văn Khoa - MSSV: 2123110246</p>
     </div>
 </div>
+
+<script>
+    function exportToWord() {
+        var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
+            "xmlns:w='urn:schemas-microsoft-com:office:word' "+
+            "xmlns='http://www.w3.org/TR/REC-html40'>"+
+            "<head><meta charset='utf-8'><title>Export HTML to Word</title></head><body>";
+        var footer = "</body></html>";
+        var sourceHTML = header + document.querySelector('.container').innerHTML + footer;
+        
+        var source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+        var fileDownload = document.createElement("a");
+        document.body.appendChild(fileDownload);
+        fileDownload.href = source;
+        fileDownload.download = 'BaoCao_DoAn_HoVanKhoa.doc';
+        fileDownload.click();
+        document.body.removeChild(fileDownload);
+    }
+</script>
+
+<style>
+    @media print {
+        .no-print { display: none !important; }
+        body { background: #fff; }
+        .container { margin: 0; padding: 0; box-shadow: none; max-width: 100%; }
+    }
+</style>
 
 </body>
 </html>
