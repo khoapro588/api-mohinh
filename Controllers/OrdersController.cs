@@ -61,6 +61,26 @@ namespace ModelStore.Controllers
             return Ok(order);
         }
 
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetOrderStats()
+        {
+            var totalRevenue = await _db.Orders
+                .Where(o => o.Status != "Cancelled")
+                .SumAsync(o => o.TotalAmount);
+            
+            var totalOrders = await _db.Orders.CountAsync();
+            var pendingOrders = await _db.Orders.CountAsync(o => o.Status == "Pending");
+            var totalCustomers = await _db.Customers.CountAsync();
+
+            return Ok(new
+            {
+                TotalRevenue = totalRevenue,
+                TotalOrders = totalOrders,
+                PendingOrders = pendingOrders,
+                TotalCustomers = totalCustomers
+            });
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {

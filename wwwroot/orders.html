@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi | ModelStore</title>
+    <link rel="stylesheet" href="style.css?v=8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .orders-page {
+            padding: 120px 5% 60px;
+            min-height: 80vh;
+        }
+        .page-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+        }
+        .order-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .order-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .order-id {
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .order-date {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .order-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #f39c12; color: #fff; }
+        .status-shipped { background: #3498db; color: #fff; }
+        .status-delivered { background: #27ae60; color: #fff; }
+        .status-cancelled { background: #e74c3c; color: #fff; }
+
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        .item-info { display: flex; gap: 1rem; align-items: center; }
+        .order-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--gold);
+        }
+        .no-orders {
+            text-align: center;
+            padding: 4rem;
+            color: #888;
+        }
+        .no-orders i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="logo" onclick="window.location.href='index.html'" style="cursor:pointer">MODEL<span>STORE</span></div>
+        <ul class="nav-links" id="dynamicNavLinks"></ul>
+        <div class="nav-actions">
+            <div class="user-menu-container" id="userMenuContainer" style="position:relative; cursor:pointer;">
+                <div id="userGreeting" style="display:none; font-size:0.85rem;">
+                    Xin chào, <span id="userNameDisplay" style="color:var(--gold); font-weight:700;"></span>
+                </div>
+                <a href="auth.html" id="userAuthIcon"><i class="fas fa-user"></i></a>
+                <div id="userDropdown" class="user-dropdown">
+                    <a href="orders.html"><i class="fas fa-box"></i> Đơn hàng của tôi</a>
+                    <a href="#" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="cart-badge" id="cartBadge">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="orders-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Lịch Sử Đơn Hàng</h1>
+                <p>Theo dõi và quản lý các đơn hàng bạn đã đặt</p>
+            </div>
+
+            <div id="ordersContainer">
+                <div class="loading" style="text-align:center; padding:3rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--gold);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>&copy; 2026 ModelStore Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js?v=8"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            const user = JSON.parse(userStr);
+            fetchUserOrders(user.id || user.Id);
+        });
+
+        async function fetchUserOrders(customerId) {
+            try {
+                const res = await fetch(`/api/orders/customer/${customerId}`);
+                if (!res.ok) throw new Error("Could not fetch orders");
+                const orders = await res.json();
+                renderOrders(orders);
+            } catch (e) {
+                document.getElementById('ordersContainer').innerHTML = `
+                    <div class="no-orders">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Có lỗi xảy ra khi tải danh sách đơn hàng.</p>
+                    </div>`;
+            }
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('ordersContainer');
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="no-orders">
+                        <i class="fas fa-shopping-basket"></i>
+                        <p>Bạn chưa có đơn hàng nào.</p>
+                        <a href="index.html" class="btn-primary" style="display:inline-block; margin-top:1rem;">Mua sắm ngay</a>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = orders.reverse().map(order => {
+                const date = new Date(order.orderDate).toLocaleDateString('vi-VN', {
+                    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                const statusClass = `status-${order.status.toLowerCase()}`;
+                
+                return `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <span class="order-id">Đơn hàng #${order.id}</span>
+                                <div class="order-date">${date}</div>
+                            </div>
+                            <span class="order-status ${statusClass}">${order.status}</span>
+                        </div>
+                        <div class="order-items">
+                            ${order.items.map(item => `
+                                <div class="order-item">
+                                    <span>Model #${item.modelId} x ${item.quantity}</span>
+                                    <span>${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.unitPrice)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="order-footer">
+                            <span>Tổng cộng:</span>
+                            <span class="total-price">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

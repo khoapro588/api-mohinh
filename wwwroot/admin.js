@@ -3,6 +3,7 @@ let adminModels = [];
 let adminUsers = [];
 let adminCategories = [];
 let adminMenus = [];
+let adminOrders = [];
 
 // ─── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchAdminUsers();
     fetchAdminCategories();
     fetchAdminMenus();
+    fetchAdminOrders();
 });
 
 // ─── TABS ─────────────────────────────────────────────────
@@ -53,11 +55,28 @@ async function fetchAdminModels() {
         adminModels = await res.json();
         
         // Update stats
-        document.getElementById('dashTotalProducts').textContent = adminModels.length;
+        const dashTotal = document.getElementById('dashTotalProducts');
+        if (dashTotal) dashTotal.textContent = adminModels.length;
         
         renderAdminTable();
+        fetchDashboardStats();
     } catch (e) {
         showToast('Không thể tải dữ liệu sản phẩm!');
+    }
+}
+
+async function fetchDashboardStats() {
+    try {
+        const res = await fetch('/api/orders/stats');
+        if (!res.ok) throw new Error();
+        const stats = await res.json();
+        
+        document.getElementById('dashRevenue').textContent = formatVND(stats.totalRevenue);
+        document.getElementById('dashOrders').textContent = stats.totalOrders;
+        document.getElementById('dashPending').textContent = stats.pendingOrders;
+        document.getElementById('dashCustomers').textContent = stats.totalCustomers;
+    } catch (e) {
+        console.error("Error fetching stats", e);
     }
 }
 
@@ -330,6 +349,69 @@ async function deleteUser(id) {
     }
 }
 
+async function fetchAdminOrders() {
+    try {
+        const res = await fetch('/api/orders');
+        if (!res.ok) throw new Error('API error');
+        adminOrders = await res.json();
+        renderAdminOrdersTable();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function renderAdminOrdersTable() {
+    const tbody = document.getElementById('orderTableBody');
+    if (!tbody) return;
+    if (adminOrders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center">Chưa có đơn hàng nào.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = adminOrders.map(o => {
+        let statusClass = o.status.toLowerCase();
+        let date = new Date(o.orderDate).toLocaleString('vi-VN');
+        
+        // Tạo chuỗi tóm tắt sản phẩm
+        let itemsSummary = o.items.map(it => `Model #${it.modelId} (x${it.quantity})`).join(', ');
+
+        return `
+            <tr>
+                <td>#${o.id}</td>
+                <td>ID Khách: ${o.customerId}</td>
+                <td>${date}</td>
+                <td><strong style="color:var(--gold)">${formatVND(o.totalAmount)}</strong></td>
+                <td><small>${itemsSummary}</small></td>
+                <td><span class="badge ${statusClass}">${o.status}</span></td>
+                <td>
+                    <select onchange="updateOrderStatus(${o.id}, this.value)" style="padding:4px; background:var(--bg3); border:1px solid var(--border); color:#fff; border-radius:4px; font-size:0.8rem;">
+                        <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Chờ duyệt</option>
+                        <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Đang giao</option>
+                        <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Đã giao</option>
+                        <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Đã hủy</option>
+                    </select>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function updateOrderStatus(orderId, newStatus) {
+    try {
+        const res = await fetch(`/api/orders/${orderId}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newStatus)
+        });
+
+        if (!res.ok) throw new Error();
+        showToast('Cập nhật trạng thái đơn hàng thành công!');
+        fetchAdminOrders();
+    } catch (e) {
+        showToast('Lỗi khi cập nhật trạng thái!');
+    }
+}
+
 // ─── CATEGORY MANAGEMENT ─────────────────────────────────
 async function fetchAdminCategories() {
     try {
@@ -409,6 +491,64 @@ function showToast(msg) {
     t.textContent = msg;
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function exportToWord() {
+    if (adminOrders.length === 0) {
+        showToast('Không có dữ liệu đơn hàng để xuất!');
+        return;
+    }
+
+    let header = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>Báo cáo đơn hàng</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid black; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            h1 { color: #d4af37; text-align: center; }
+        </style>
+        </head><body>
+        <h1>BÁO CÁO ĐƠN HÀNG MODELSTORE</h1>
+        <p>Ngày xuất báo cáo: ${new Date().toLocaleString('vi-VN')}</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã ĐH</th>
+                    <th>Khách Hàng</th>
+                    <th>Ngày Đặt</th>
+                    <th>Tổng Tiền</th>
+                    <th>Trạng Thái</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    let rows = adminOrders.map(o => `
+        <tr>
+            <td>#${o.id}</td>
+            <td>ID: ${o.customerId}</td>
+            <td>${new Date(o.orderDate).toLocaleString('vi-VN')}</td>
+            <td>${formatVND(o.totalAmount)}</td>
+            <td>${o.status}</td>
+        </tr>
+    `).join('');
+
+    let footer = `</tbody></table><br><p style='text-align:right'>Người lập báo cáo: Hệ thống ModelStore Admin</p></body></html>`;
+    
+    let source = header + rows + footer;
+    let blob = new Blob(['\ufeff', source], {
+        type: 'application/msword'
+    });
+
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement('a');
+    link.href = url;
+    link.download = 'Bao-Cao-Don-Hang.doc';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function adminLogout() {
