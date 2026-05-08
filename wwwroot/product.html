@@ -371,7 +371,7 @@
             const img = currentModel.imageUrl || 'images/product1.png';
             const catLabel = {pvc:'Mô Hình PVC', resin:'Mô Hình Resin', gundam:'Gundam', 'xe-co':'Xe Cô'}[currentModel.category] || currentModel.category;
             
-            const stockColor = currentModel.stock <= 3 ? 'var(--red)' : currentModel.stock <= 8 ? '#f39c12' : '#2ecc71';
+            const stockColor = currentModel.stock <= 3 ? '#e74c3c' : currentModel.stock <= 8 ? '#f39c12' : '#2ecc71';
             const stockText = currentModel.stock <= 3 ? `Sắp hết! Chỉ còn ${currentModel.stock} SP` : `Còn hàng (${currentModel.stock})`;
             
             const html = `
@@ -382,7 +382,8 @@
                         ${currentModel.isFeatured ? '<span style="position:absolute;top:1rem;left:1rem;background:var(--gold);color:#000;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;"><i class="fas fa-star"></i> Nổi bật</span>' : ''}
                     </div>
                     <div class="pd-thumbs">
-                        <div class="pd-thumb active"><img src="${img}" onerror="this.src='images/product1.png'"></div>
+                        <div class="pd-thumb active" onclick="changePdImage('${img}', this)"><img src="${img}" onerror="this.src='images/product1.png'"></div>
+                        <div class="pd-thumb" onclick="changePdImage('images/product1.png', this)"><img src="images/product1.png"></div>
                     </div>
                 </div>
 
@@ -390,7 +391,7 @@
                     <div class="pd-crumb">
                         <a href="index.html" style="color:var(--muted);text-decoration:none">Trang chủ</a> 
                         <i class="fas fa-chevron-right" style="font-size:0.7rem"></i>
-                        <span>${catLabel}</span>
+                        <a href="index.html?cat=${currentModel.category}" style="color:var(--muted);text-decoration:none">${catLabel}</a>
                     </div>
 
                     <h1 class="pd-title">${currentModel.name}</h1>
@@ -404,6 +405,7 @@
 
                     <div class="pd-price-block">
                         <span class="pd-price">${currentModel.price.toLocaleString('vi-VN')}₫</span>
+                        ${currentModel.isOnSale ? `<span style="text-decoration:line-through; color:var(--muted); font-size:1.2rem;">${(currentModel.price * 1.2).toLocaleString('vi-VN')}₫</span>` : ''}
                     </div>
 
                     <div class="pd-stock" style="color:${stockColor}">
@@ -416,15 +418,14 @@
                             <span id="pdQtyVal">1</span>
                             <button onclick="changePdQty(1)"><i class="fas fa-plus"></i></button>
                         </div>
-                        <button class="pd-btn-cart" onclick="addToCartQty(${currentModel.id}, pdQty)">
+                        <button class="pd-btn-cart" onclick="handleAddToCart()">
                             <i class="fas fa-cart-plus"></i> Thêm Giỏ Hàng
                         </button>
-                        <button class="pd-btn-buy" onclick="addToCartQty(${currentModel.id}, pdQty); window.location.href='checkout.html'">
+                        <button class="pd-btn-buy" onclick="handleBuyNow()">
                             Mua Ngay
                         </button>
                     </div>
 
-                    <!-- Trust factors -->
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                         <div style="display:flex; align-items:center; gap:0.8rem; background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;">
                             <i class="fas fa-shield-alt" style="color:var(--gold); font-size:1.5rem;"></i>
@@ -438,7 +439,6 @@
                 </div>
             </div>
 
-            <!-- Tabs -->
             <div class="pd-tabs-container">
                 <div class="pd-tabs-header">
                     <button class="pd-tab active" onclick="switchPdTab('desc', this)">Mô tả sản phẩm</button>
@@ -464,15 +464,60 @@
                     <p><i class="fas fa-check" style="color:var(--gold)"></i> <strong>Đóng gói:</strong> Bubble wrap 3 lớp + Thùng carton cứng chống va đập 100%.</p>
                 </div>
             </div>
+
+            <div style="margin-top:5rem;">
+                <h3 style="font-family:var(--heading); font-size:1.8rem; margin-bottom:2rem; color:var(--gold);">Sản Phẩm Tương Tự</h3>
+                <div class="product-grid" id="relatedProductsGrid">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
             `;
             document.getElementById('pdContainer').innerHTML = html;
+            fetchRelatedProducts();
+        }
+
+        async function fetchRelatedProducts() {
+            try {
+                const res = await fetch('/api/models');
+                const all = await res.json();
+                const related = all.filter(m => m.category === currentModel.category && m.id !== currentModel.id).slice(0, 4);
+                const grid = document.getElementById('relatedProductsGrid');
+                if (grid && related.length > 0) {
+                    grid.innerHTML = related.map(m => `
+                        <div class="product-card" onclick="window.location.href='product.html?id=${m.id}'">
+                            <div class="card-image"><img src="${m.imageUrl || 'images/product1.png'}" onerror="this.src='images/product1.png'"></div>
+                            <div class="card-info">
+                                <h3>${m.name}</h3>
+                                <div class="card-bottom"><span class="card-price">${m.price.toLocaleString('vi-VN')}₫</span></div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {}
+        }
+
+        function changePdImage(src, el) {
+            document.getElementById('pdMainImage').src = src;
+            document.querySelectorAll('.pd-thumb').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function handleAddToCart() {
+            if (typeof addToCartQty === 'function') {
+                addToCartQty(currentModel.id, pdQty);
+            }
+        }
+
+        function handleBuyNow() {
+            handleAddToCart();
+            setTimeout(() => { window.location.href = 'checkout.html'; }, 500);
         }
 
         function changePdQty(delta) {
             pdQty += delta;
             if(pdQty < 1) pdQty = 1;
             if(currentModel && pdQty > currentModel.stock) {
-                showToast(`Chỉ còn ${currentModel.stock} sản phẩm trong kho`);
+                if (typeof showToast === 'function') showToast(`Chỉ còn ${currentModel.stock} sản phẩm trong kho`);
                 pdQty = currentModel.stock;
             }
             document.getElementById('pdQtyVal').textContent = pdQty;
