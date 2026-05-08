@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Dự Án | ModelStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --bg: #0f0f0f;
+            --bg2: #1a1a1a;
+            --text: #ffffff;
+            --muted: #888888;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg2);
+            padding: 50px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        h1 { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin: 0; }
+        h2 { color: var(--gold); border-left: 4px solid var(--gold); padding-left: 15px; margin-top: 40px; }
+        .section { margin-bottom: 30px; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+        .btn-export {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+            transition: all 0.3s;
+        }
+        .btn-export:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5); }
+        
+        @media print {
+            .btn-export { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-export" onclick="exportToWord()">
+        <i class="fas fa-file-word"></i> Tải Báo Cáo (Word)
+    </button>
+
+    <div class="container" id="reportContent">
+        <div class="header">
+            <h1>BÁO CÁO TỔNG KẾT DỰ ÁN</h1>
+            <p style="font-size: 1.2rem; font-weight: 600; margin-top: 10px;">HỆ THỐNG THƯƠNG MẠI ĐIỆN TỬ MODELSTORE PLATFORM</p>
+            <p>Ngày thực hiện: 08/05/2026</p>
+        </div>
+
+        <div class="section">
+            <h2>1. Tổng Quan Dự Án</h2>
+            <p><strong>ModelStore</strong> là một nền tảng thương mại điện tử chuyên biệt dành cho các sản phẩm mô hình (PVC, Resin). Mục tiêu của dự án là chuyển đổi từ kiến trúc Microservices cũ sang kiến trúc <strong>Monolithic (Đơn khối)</strong> mạnh mẽ, dễ bảo trì và hiệu suất cao sử dụng công nghệ ASP.NET Core.</p>
+        </div>
+
+        <div class="section">
+            <h2>2. Công Nghệ Sử Dụng (Technology Stack)</h2>
+            <p>Dự án được xây dựng trên những công nghệ hiện đại nhất hiện nay:</p>
+            <ul>
+                <li><strong>Backend:</strong> C# (.NET 9), ASP.NET Core Web API, EF Core.</li>
+                <li><strong>Database:</strong> MySQL (Quản lý dữ liệu tập trung).</li>
+                <li><strong>Frontend:</strong> HTML5, CSS3 hiện đại, Vanilla Javascript (ES6+).</li>
+                <li><strong>Thống kê:</strong> Chart.js (Biểu đồ doanh thu và đơn hàng).</li>
+                <li><strong>Tài liệu:</strong> Swagger UI (Giao diện kiểm thử API trực quan).</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>3. Quy Trình Thực Hiện</h2>
+            <ul>
+                <li><strong>Giai đoạn 1:</strong> Thiết lập nền tảng, cấu hình kết nối Database và định nghĩa các thực thể (Models).</li>
+                <li><strong>Giai đoạn 2:</strong> Xây dựng hệ thống API cho Sản phẩm, Đơn hàng, Người dùng và cấu hình hệ thống.</li>
+                <li><strong>Giai đoạn 3:</strong> Thiết kế giao diện Premium Dark Mode, tích hợp gọi API và xử lý giỏ hàng real-time.</li>
+                <li><strong>Giai đoạn 4:</strong> Xây dựng Dashboard quản trị, biểu đồ thống kê và tính năng xuất báo cáo.</li>
+                <li><strong>Giai đoạn 5:</strong> Tích hợp thanh toán trực tuyến qua cổng VNPay.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>4. Các Tính Năng Then Chốt</h2>
+            <ul>
+                <li><strong>Đặt hàng chuyên nghiệp:</strong> Quy trình từ xem hàng, thêm giỏ đến thanh toán được tối ưu hóa.</li>
+                <li><strong>Quản trị thông minh:</strong> Dashboard hiển thị biểu đồ doanh thu theo ngày và trạng thái đơn hàng.</li>
+                <li><strong>Xuất báo cáo Word:</strong> Hỗ trợ Admin xuất danh sách đơn hàng và người dùng ra file .doc nhanh chóng.</li>
+                <li><strong>Cấu hình động:</strong> Thay đổi nội dung Menu và Danh mục trang chủ mà không cần can thiệp mã nguồn.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>5. Kết Luận</h2>
+            <p>Dự án ModelStore đã hoàn thiện toàn bộ các tính năng từ cơ bản đến nâng cao. Hệ thống hoạt động ổn định, giao diện sang trọng và có khả năng mở rộng cao trong tương lai.</p>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 ModelStore Platform - Developed by Antigravity AI</p>
+        </div>
+    </div>
+
+    <script>
+        function exportToWord() {
+            const content = document.getElementById('reportContent').innerHTML;
+            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
+                "xmlns:w='urn:schemas-microsoft-com:office:word' "+
+                "xmlns='http://www.w3.org/TR/REC-html40'>"+
+                "<head><meta charset='utf-8'><title>Báo cáo dự án ModelStore</title><style>" +
+                "body { font-family: 'Times New Roman', serif; }" +
+                "h1 { color: #d4af37; text-align: center; text-transform: uppercase; }" +
+                "h2 { color: #d4af37; border-bottom: 1px solid #d4af37; margin-top: 20px; }" +
+                ".header { text-align: center; margin-bottom: 30px; }" +
+                ".footer { margin-top: 40px; text-align: center; border-top: 1px solid #ccc; padding-top: 10px; }" +
+                "li { margin-bottom: 5px; }" +
+                "</style></head><body>";
+            const footer = "</body></html>";
+            const sourceHTML = header + content + footer;
+            
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = 'Bao_Cao_Du_An_ModelStore.doc';
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+        }
+    </script>
+</body>
+</html>
