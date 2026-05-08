@@ -223,20 +223,37 @@
 
 <script>
     function exportToWord() {
-        var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
-            "xmlns:w='urn:schemas-microsoft-com:office:word' "+
-            "xmlns='http://www.w3.org/TR/REC-html40'>"+
-            "<head><meta charset='utf-8'><title>Export HTML to Word</title></head><body>";
-        var footer = "</body></html>";
-        var sourceHTML = header + document.querySelector('.container').innerHTML + footer;
+        var content = document.querySelector('.container').innerHTML;
         
-        var source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-        var fileDownload = document.createElement("a");
-        document.body.appendChild(fileDownload);
-        fileDownload.href = source;
-        fileDownload.download = 'BaoCao_DoAn_HoVanKhoa.doc';
-        fileDownload.click();
-        document.body.removeChild(fileDownload);
+        // Cấu trúc đầy đủ cho file MS Word
+        var header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' " +
+            "xmlns:w='urn:schemas-microsoft-com:office:word' " +
+            "xmlns='http://www.w3.org/TR/REC-html40'>" +
+            "<head><meta charset='utf-8'><style>" +
+            "body { font-family: 'Arial', sans-serif; }" +
+            "table { border-collapse: collapse; width: 100%; }" +
+            "th, td { border: 1px solid black; padding: 8px; text-align: left; }" +
+            "h1 { text-align: center; color: #d4af37; }" +
+            "h2 { color: #000; border-bottom: 1px solid #d4af37; }" +
+            ".no-print { display: none; }" +
+            "</style></head><body>";
+        var footer = "</body></html>";
+        
+        var html = header + content + footer;
+        
+        // Tạo Blob để tải file chuyên nghiệp hơn
+        var blob = new Blob(['\ufeff', html], {
+            type: 'application/msword'
+        });
+        
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'BaoCao_DoAn_HoVanKhoa.doc';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 </script>
 

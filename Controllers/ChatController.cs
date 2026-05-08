@@ -36,8 +36,8 @@ namespace ModelStore.Controllers
                 return Ok(new { reply = "Đây là AI giả lập do chưa có API Key." });
             }
 
-            // Dùng gemini-2.5-flash theo đúng chuẩn mới nhất của Google cấp cho API Key này
-            string endpoint = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
+            // Dùng gemini-1.5-flash ổn định nhất
+            string endpoint = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
 
             // LẤY DỮ LIỆU TỪ DATABASE
             var products = await _db.FigureModels.Take(20).ToListAsync();
