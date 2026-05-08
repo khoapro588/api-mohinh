@@ -503,8 +503,8 @@
         }
 
         function handleAddToCart() {
-            if (typeof addToCartQty === 'function') {
-                addToCartQty(currentModel.id, pdQty);
+            if (typeof addToCartQty === 'function' && currentModel) {
+                addToCartQty(currentModel.id, pdQty, currentModel);
             }
         }
 

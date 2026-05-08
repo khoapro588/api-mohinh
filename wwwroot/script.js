@@ -418,9 +418,13 @@ function mdChangeQty(delta) {
     document.getElementById('mdQtyVal').textContent = _modalQty;
 }
 
-function addToCartQty(modelId, qty) {
-    const model = allModels.find(m => m.id === modelId);
-    if (!model) return;
+function addToCartQty(modelId, qty, modelData = null) {
+    let model = modelData || allModels.find(m => m.id === modelId);
+    if (!model) {
+        // Nếu không có modelData và allModels chưa tải, ta thử tìm trong cart hoặc bỏ qua
+        console.warn("Model not found in allModels, trying to use provided data...");
+        return;
+    }
     const existing = cart.find(c => c.id === modelId);
     if (existing) existing.qty += qty;
     else cart.push({ id: modelId, name: model.name, price: model.price, img: model.imageUrl || 'images/product1.png', qty });
