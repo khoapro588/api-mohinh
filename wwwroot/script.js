@@ -36,9 +36,12 @@ function initUserAuth() {
                 }
                 
                 userMenuContainer.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if(userDropdown) userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
+                    // Chỉ toggle dropdown nếu click vào icon hoặc tên, không phải các link bên trong dropdown
+                    if (!userDropdown.contains(e.target)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
+                    }
                 };
                 
                 document.addEventListener('click', (e) => {
